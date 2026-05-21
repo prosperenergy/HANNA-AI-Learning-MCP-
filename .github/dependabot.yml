@@ -1,0 +1,79 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+    groups:
+      github_actions_security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    labels:
+      - "ci"
+      - "security"
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/api"
+      - "/client"
+      - "/packages/api"
+      - "/packages/client"
+      - "/packages/data-provider"
+      - "/packages/data-provider/react-query"
+      - "/packages/data-schemas"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+    groups:
+      npm_security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: "docker"
+    directories:
+      - "/"
+      - "/.devcontainer"
+      - "/.do/gitnexus"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+    groups:
+      docker_security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps"
+
+  - package-ecosystem: "docker-compose"
+    directories:
+      - "/"
+      - "/.devcontainer"
+      - "/.do/gitnexus"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 0
+    groups:
+      docker_compose_security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps"
