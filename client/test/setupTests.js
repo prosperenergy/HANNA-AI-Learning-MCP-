@@ -29,6 +29,29 @@ if (typeof globalThis.TextDecoder === 'undefined') {
   globalThis.TextDecoder = TextDecoder;
 }
 
+/**
+ * jsdom does not provide Request. React Router reads request.method during
+ * navigate(); without it, isMutationMethod throws
+ * "Cannot read properties of undefined (reading 'toUpperCase')".
+ */
+if (typeof globalThis.Request === 'undefined') {
+  globalThis.Request = class Request {
+    constructor(input, init = {}) {
+      const source = typeof input === 'string' || input instanceof URL ? null : input;
+      this.url = source ? String(source.url) : String(input);
+      this.method = String(init.method ?? source?.method ?? 'GET');
+      this.headers = init.headers ?? source?.headers ?? {};
+      this.body = init.body ?? source?.body ?? null;
+      this.signal = init.signal ?? source?.signal;
+      this.credentials = init.credentials ?? source?.credentials;
+      this.redirect = init.redirect ?? source?.redirect ?? 'follow';
+    }
+    clone() {
+      return new Request(this.url, this);
+    }
+  };
+}
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
