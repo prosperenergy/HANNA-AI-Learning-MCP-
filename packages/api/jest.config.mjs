@@ -36,6 +36,9 @@ export default {
   //   },
   // },
   setupFiles: ['<rootDir>/jest.setup.cjs'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@mistralai/mistralai|sanitize-html|htmlparser2|entities|domhandler|dom-serializer|domelementtype|domutils)/).*/',
+  ],
   maxWorkers: '50%',
   restoreMocks: true,
   testTimeout: 15000,

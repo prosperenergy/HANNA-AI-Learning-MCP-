@@ -669,8 +669,19 @@ export class MCPConnection extends EventEmitter {
         const response = await undiciFetch(currentUrlString, currentInit);
         const isMethodPreservingRedirect = response.status === 307 || response.status === 308;
 
-        if (!isMethodPreservingRedirect || redirects >= MAX_REDIRECTS) {
+        if (!isMethodPreservingRedirect) {
           return response;
+        }
+
+        /**
+         * Do not return the 307/308 to the caller. The MCP SDK also follows
+         * same-origin redirects (`followWithinOrigin`), so handing back a
+         * redirect after this cap would let it issue one more hop and bypass
+         * MAX_REDIRECTS.
+         */
+        if (redirects >= MAX_REDIRECTS) {
+          await response.body?.cancel().catch(() => undefined);
+          throw new Error(`Exceeded maximum of ${MAX_REDIRECTS} MCP redirects`);
         }
 
         const location = response.headers.get('location');
@@ -851,7 +862,7 @@ export class MCPConnection extends EventEmitter {
                   ...init,
                   redirect: 'manual',
                   dispatcher: sseAgent,
-                  headers: fetchHeaders,
+                  headers: Object.fromEntries(fetchHeaders.entries()),
                 });
               },
             },
