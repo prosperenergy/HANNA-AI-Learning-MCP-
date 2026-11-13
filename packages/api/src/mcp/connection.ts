@@ -851,7 +851,7 @@ export class MCPConnection extends EventEmitter {
                   ...init,
                   redirect: 'manual',
                   dispatcher: sseAgent,
-                  headers: fetchHeaders,
+                  headers: Object.fromEntries(fetchHeaders.entries()),
                 });
               },
             },
