@@ -2,6 +2,8 @@
  * https://create-react-app.dev/docs/running-tests/#initializing-test-environment
  */
 
+import { TextEncoder, TextDecoder } from 'util';
+
 // react-testing-library renders your components to document.body,
 // this adds jest-dom's custom assertions
 // https://github.com/testing-library/jest-dom#table-of-contents
@@ -19,6 +21,13 @@ import 'jest-canvas-mock';
 
 // Mock ResizeObserver
 import './resizeObserver.mock';
+
+if (typeof globalThis.TextEncoder === 'undefined') {
+  globalThis.TextEncoder = TextEncoder;
+}
+if (typeof globalThis.TextDecoder === 'undefined') {
+  globalThis.TextDecoder = TextDecoder;
+}
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
