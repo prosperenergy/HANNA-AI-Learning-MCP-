@@ -20,5 +20,7 @@ module.exports = {
       },
     ],
   },
-  transformIgnorePatterns: ['/node_modules/(?!(openid-client|oauth4webapi|jose|@mistralai/mistralai)/).*/'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!(openid-client|oauth4webapi|jose|@mistralai/mistralai)/).*/',
+  ],
 };
