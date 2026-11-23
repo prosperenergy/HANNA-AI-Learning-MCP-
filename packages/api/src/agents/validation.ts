@@ -53,18 +53,18 @@ export const graphEdgeSchema = z.object({
   to: z.union([z.string(), z.array(z.string())]),
   description: z
     .string()
-    .optional()
-    .transform((v) => (v === '' ? undefined : v)),
+    .transform((v) => (v === '' ? undefined : v))
+    .optional(),
   edgeType: z.enum(['handoff', 'direct']).optional(),
   prompt: z
     .union([z.string(), z.function()])
-    .optional()
-    .transform((v) => (v === '' ? undefined : v)),
+    .transform((v) => (v === '' ? undefined : v))
+    .optional(),
   excludeResults: z.boolean().optional(),
   promptKey: z
     .string()
-    .optional()
-    .transform((v) => (v === '' ? undefined : v)),
+    .transform((v) => (v === '' ? undefined : v))
+    .optional(),
 });
 
 /** Per-tool options schema (defer_loading, allowed_callers) */
@@ -96,7 +96,7 @@ export const agentBaseSchema = z.object({
   description: z.string().nullable().optional(),
   instructions: z.string().nullable().optional(),
   avatar: agentAvatarSchema.nullable().optional(),
-  model_parameters: z.record(z.unknown()).optional(),
+  model_parameters: z.record(z.string(), z.unknown()).optional(),
   tools: z.array(z.string()).optional(),
   skills: z.array(z.string()).optional(),
   skills_enabled: z.boolean().optional(),

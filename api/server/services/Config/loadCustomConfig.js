@@ -110,7 +110,7 @@ async function loadCustomConfig(printConfig = true) {
   }
 
   const result = configSchema.strict().safeParse(customConfig);
-  if (result?.error?.errors?.some((err) => err?.path && err.path?.includes('imageOutputType'))) {
+  if (result?.error?.issues?.some((err) => err?.path && err.path?.includes('imageOutputType'))) {
     throw new Error(
       `
 Please specify a correct \`imageOutputType\` value (case-sensitive).
@@ -129,7 +129,7 @@ Please specify a correct \`imageOutputType\` value (case-sensitive).
 ${JSON.stringify(result.error, null, 2)}`;
 
     logger.error(errorMessage);
-    const speechError = result.error.errors.find(
+    const speechError = result.error.issues.find(
       (err) =>
         err.code === 'unrecognized_keys' &&
         (err.message?.includes('stt') || err.message?.includes('tts')),

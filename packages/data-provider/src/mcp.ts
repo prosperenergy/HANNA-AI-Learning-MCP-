@@ -121,18 +121,14 @@ export const StdioOptionsSchema = BaseOptionsSchema.extend({
    */
   env: z
     .record(z.string(), z.string())
-    .optional()
     .transform((env) => {
-      if (!env) {
-        return env;
-      }
-
       const processedEnv: Record<string, string> = {};
       for (const [key, value] of Object.entries(env)) {
         processedEnv[key] = extractEnvVariable(value);
       }
       return processedEnv;
-    }),
+    })
+    .optional(),
   /**
    * How to handle stderr of the child process.
    * Accepts: 'pipe' | 'ignore' | 'inherit' | file descriptor number.
