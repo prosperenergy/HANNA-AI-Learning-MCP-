@@ -1,0 +1,70 @@
+name: Valkey smoke
+
+on:
+  pull_request:
+  push:
+    branches: [main, master, '4368']
+
+permissions:
+  contents: read
+
+jobs:
+  valkey-smoke:
+    name: Valkey ping
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      valkey:
+        image: valkey/valkey:8
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ping Valkey over RESP
+        env:
+          REDIS_URL: redis://127.0.0.1:6379/0
+          VALKEY_URL: redis://127.0.0.1:6379/0
+          REDIS_CONN_STRING: redis://127.0.0.1:6379/0
+          VALKEY_CONN_STRING: redis://127.0.0.1:6379/0
+        run: |
+          python3 - <<'PY'
+          import socket, time
+          host, port = "127.0.0.1", 6379
+          deadline = time.time() + 30
+          last = None
+          while time.time() < deadline:
+              try:
+                  s = socket.create_connection((host, port), timeout=5)
+                  s.sendall(b"*1\r\n$4\r\nPING\r\n")
+                  pong = s.recv(64)
+                  if not pong.startswith(b"+PONG"):
+                      raise SystemExit(f"unexpected PING reply: {pong!r}")
+                  s.sendall(b"*3\r\n$3\r\nSET\r\n$12\r\nvalkey-smoke\r\n$2\r\nok\r\n")
+                  ok = s.recv(64)
+                  if not ok.startswith(b"+OK"):
+                      raise SystemExit(f"unexpected SET reply: {ok!r}")
+                  s.sendall(b"*2\r\n$3\r\nGET\r\n$12\r\nvalkey-smoke\r\n")
+                  got = s.recv(64)
+                  if b"ok" not in got:
+                      raise SystemExit(f"unexpected GET reply: {got!r}")
+                  s.close()
+                  print("valkey-smoke: PING/SET/GET ok")
+                  break
+              except SystemExit:
+                  raise
+              except Exception as exc:
+                  last = exc
+                  time.sleep(1)
+          else:
+              raise SystemExit(f"valkey never became reachable: {last}")
+          PY
+          if [ -f scripts/valkey-smoke.sh ]; then
+            bash scripts/valkey-smoke.sh
+          fi
