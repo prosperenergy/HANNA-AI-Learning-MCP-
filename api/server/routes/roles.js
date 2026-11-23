@@ -104,7 +104,7 @@ const createPermissionUpdateHandler = (permissionKey) => {
       const updatedRole = await updateRoleByName(roleName, mergedUpdates);
       res.status(200).send(updatedRole);
     } catch (error) {
-      return res.status(400).send({ message: config.errorMessage, error: error.errors });
+      return res.status(400).send({ message: config.errorMessage, error: error.issues });
     }
   };
 };

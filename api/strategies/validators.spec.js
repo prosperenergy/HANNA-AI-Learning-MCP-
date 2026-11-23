@@ -449,7 +449,7 @@ describe('Zod Schemas', () => {
         confirm_password: 'password123',
       });
 
-      const result = errorsToString(error.errors);
+      const result = errorsToString(error.issues);
       expect(result).toBe('name: String must contain at least 3 character(s)');
     });
   });

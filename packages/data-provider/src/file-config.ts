@@ -468,7 +468,7 @@ const skillFileConfigSchema = z.object({
 });
 
 export const fileConfigSchema = z.object({
-  endpoints: z.record(endpointFileConfigSchema).optional(),
+  endpoints: z.record(z.string(), endpointFileConfigSchema).optional(),
   skills: skillFileConfigSchema.optional(),
   serverFileSizeLimit: z.number().min(0).optional(),
   avatarSizeLimit: z.number().min(0).optional(),

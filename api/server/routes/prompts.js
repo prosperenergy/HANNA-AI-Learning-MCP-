@@ -396,7 +396,7 @@ const patchPromptGroup = async (req, res) => {
     if (!validationResult.success) {
       return res.status(400).send({
         error: 'Invalid request body',
-        details: validationResult.error.errors,
+        details: validationResult.error.issues,
       });
     }
 
