@@ -1,6 +1,16 @@
 import { z } from 'zod';
 import type { JsonSchemaType, ConvertJsonSchemaToZodOptions } from '@librechat/data-schemas';
 
+/** Dynamic JSON Schema output. Zod 4 defaults ZodType to unknown; Zod 3's ZodTypeAny did not. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DynamicZodType = z.ZodType<any>;
+
+/** Zod 4 wrappers do not keep `.description`; copy it onto the outermost schema. */
+function optionalNullable(schema: z.ZodType): DynamicZodType {
+  const wrapped = schema.optional().nullable();
+  return schema.description ? wrapped.describe(schema.description) : wrapped;
+}
+
 function isEmptyObjectSchema(jsonSchema?: JsonSchemaType): boolean {
   return (
     jsonSchema != null &&
@@ -66,7 +76,7 @@ function dropSchemaFields(
 function convertToZodUnion(
   schemas: Record<string, unknown>[],
   options: ConvertJsonSchemaToZodOptions,
-): z.ZodType | undefined {
+): DynamicZodType | undefined {
   if (!Array.isArray(schemas) || schemas.length === 0) {
     return undefined;
   }
@@ -153,7 +163,7 @@ function convertToZodUnion(
       // If it has a type, convert it normally
       return convertJsonSchemaToZod(subSchema as JsonSchemaType, options);
     })
-    .filter((schema): schema is z.ZodType => schema !== undefined);
+    .filter((schema): schema is DynamicZodType => schema !== undefined);
 
   if (zodSchemas.length === 0) {
     return undefined;
@@ -334,7 +344,7 @@ export function normalizeJsonSchema<T extends Record<string, unknown>>(schema: T
 export function convertJsonSchemaToZod(
   schema: JsonSchemaType & Record<string, unknown>,
   options: ConvertJsonSchemaToZodOptions = {},
-): z.ZodType | undefined {
+): DynamicZodType | undefined {
   const { allowEmptyObject = true, dropFields, transformOneOfAnyOf = false } = options;
 
   // Handle oneOf/anyOf if transformOneOfAnyOf is enabled
@@ -423,7 +433,7 @@ export function convertJsonSchemaToZod(
     return undefined;
   }
 
-  let zodSchema: z.ZodType;
+  let zodSchema: DynamicZodType;
 
   // Handle primitive types
   if (schema.type === 'string') {
@@ -519,13 +529,13 @@ export function convertJsonSchemaToZod(
       const partial = Object.fromEntries(
         Object.entries(shape).map(([key, value]) => [
           key,
-          schema.required?.includes(key) === true ? value : value.optional().nullable(),
+          schema.required?.includes(key) === true ? value : optionalNullable(value),
         ]),
       );
       objectSchema = z.object(partial);
     } else {
       const partialNullable = Object.fromEntries(
-        Object.entries(shape).map(([key, value]) => [key, value.optional().nullable()]),
+        Object.entries(shape).map(([key, value]) => [key, optionalNullable(value)]),
       );
       objectSchema = z.object(partialNullable);
     }

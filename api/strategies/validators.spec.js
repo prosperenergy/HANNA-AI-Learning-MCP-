@@ -450,7 +450,7 @@ describe('Zod Schemas', () => {
       });
 
       const result = errorsToString(error.issues);
-      expect(result).toBe('name: String must contain at least 3 character(s)');
+      expect(result).toBe('name: Too small: expected string to have >=3 characters');
     });
   });
 

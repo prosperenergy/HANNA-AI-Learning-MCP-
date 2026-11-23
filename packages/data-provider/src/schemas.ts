@@ -771,7 +771,10 @@ const DocumentType: z.ZodType<DocumentTypeValue> = z.lazy(() =>
     z.number(),
     z.string(),
     z.array(z.lazy(() => DocumentType)),
-    z.record(z.string(), z.lazy(() => DocumentType)),
+    z.record(
+      z.string(),
+      z.lazy(() => DocumentType),
+    ),
   ]),
 );
 

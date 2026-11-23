@@ -110,7 +110,7 @@ async function loadCustomConfig(printConfig = true) {
   }
 
   const result = configSchema.strict().safeParse(customConfig);
-  if (result?.error?.errors?.some((err) => err?.path && err.path?.includes('imageOutputType'))) {
+  if (result?.error?.issues?.some((err) => err?.path && err.path?.includes('imageOutputType'))) {
     throw new Error(
       `
 Please specify a correct \`imageOutputType\` value (case-sensitive).
